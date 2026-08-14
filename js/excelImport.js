@@ -14,6 +14,7 @@ const dropzone = document.getElementById('dropzone');
 const fileInput = document.getElementById('fileInput');
 const fileChip = document.getElementById('fileChip');
 const fileName = document.getElementById('fileName');
+const changeFile = document.getElementById('changeFile');
 const sheetField = document.getElementById('sheetField');
 const sheetSelect = document.getElementById('sheetSelect');
 const columnField = document.getElementById('columnField');
@@ -154,6 +155,7 @@ export function parseCurrentPairs(){
 
 export function initExcelImport(){
   dropzone.addEventListener('click', () => fileInput.click());
+  changeFile.addEventListener('click', () => fileInput.click());
   dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag'); });
   dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag'));
   dropzone.addEventListener('drop', e => {

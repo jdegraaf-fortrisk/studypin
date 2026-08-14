@@ -184,18 +184,26 @@
     overflow:hidden;
     text-overflow:ellipsis;
     white-space:nowrap;
+    min-width:0;
     font-family:'Baloo 2',sans-serif;
     font-weight:600;
+  }
+  .file-chip-actions{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-shrink:0;
   }
   .file-chip button{
     border:none;
     background:none;
     color:var(--ink-soft);
     cursor:pointer;
-    font-size:13px;
+    font-size:12px;
     font-family:'IBM Plex Mono',monospace;
     text-decoration:underline;
     padding:0;
+    white-space:nowrap;
   }
 
   .field{display:flex; flex-direction:column; gap:4px; min-width:0;}
