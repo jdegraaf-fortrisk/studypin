@@ -10,6 +10,8 @@ const orientation = document.getElementById('orientation');
 const fontSliderFront = document.getElementById('fontSliderFront');
 const fontSliderBack = document.getElementById('fontSliderBack');
 const skipHeader = document.getElementById('skipHeader');
+const colALangSelect = document.getElementById('colALangSelect');
+const colBLangSelect = document.getElementById('colBLangSelect');
 
 function loadSettings(){
   try{
@@ -27,7 +29,9 @@ function saveSettings(){
       orientation: orientation.value,
       fontPtFront: fontSliderFront.value,
       fontPtBack: fontSliderBack.value,
-      skipHeader: skipHeader.checked
+      skipHeader: skipHeader.checked,
+      colALang: colALangSelect.value,
+      colBLang: colBLangSelect.value
     }));
   }catch(e){ /* opslag niet beschikbaar in deze omgeving, negeren */ }
 }
@@ -42,11 +46,13 @@ function applySavedSettings(){
   if (s.orientation) orientation.value = s.orientation;
   if (s.fontPtFront) fontSliderFront.value = s.fontPtFront;
   if (s.fontPtBack) fontSliderBack.value = s.fontPtBack;
+  if (s.colALang) colALangSelect.value = s.colALang;
+  if (s.colBLang) colBLangSelect.value = s.colBLang;
 }
 
 export function initSettings(){
   applySavedSettings();
-  [mirrorBack, showCutlines, cardsPerPage, orientation].forEach(el => el.addEventListener('change', saveSettings));
+  [mirrorBack, showCutlines, cardsPerPage, orientation, colALangSelect, colBLangSelect].forEach(el => el.addEventListener('change', saveSettings));
   [fontSliderFront, fontSliderBack].forEach(el => el.addEventListener('input', saveSettings));
   skipHeader.addEventListener('change', saveSettings);
 }

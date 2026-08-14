@@ -1,5 +1,6 @@
 // Oefenmodus: typen, meerkeuze en spraakherkenning met sessie/score-afhandeling.
 import { getPairs } from './cardRenderer.js';
+import { detectLanguage } from './langDetect.js';
 
 const practiceBtn = document.getElementById('practiceBtn');
 const practiceOverlay = document.getElementById('practiceOverlay');
@@ -8,7 +9,9 @@ const practiceSetup = document.getElementById('practiceSetup');
 const practiceSession = document.getElementById('practiceSession');
 const practiceResults = document.getElementById('practiceResults');
 const speakChoice = document.getElementById('speakChoice');
+const listenChoice = document.getElementById('listenChoice');
 const speechUnsupportedNote = document.getElementById('speechUnsupportedNote');
+const ttsUnsupportedNote = document.getElementById('ttsUnsupportedNote');
 const scopeAllLabel = document.getElementById('scopeAllLabel');
 const practiceSubsetCount = document.getElementById('practiceSubsetCount');
 const practiceSetupError = document.getElementById('practiceSetupError');
@@ -27,16 +30,57 @@ const practiceRetryMissedBtn = document.getElementById('practiceRetryMissedBtn')
 const practiceRestartBtn = document.getElementById('practiceRestartBtn');
 const practiceInstruction = document.getElementById('practiceInstruction');
 const speechLangField = document.getElementById('speechLangField');
-const speechLangSelect = document.getElementById('speechLangSelect');
+const colALangSelect = document.getElementById('colALangSelect');
+const colBLangSelect = document.getElementById('colBLangSelect');
+const langSuggestion = document.getElementById('langSuggestion');
+const langSuggestionText = document.getElementById('langSuggestionText');
+const langSuggestionApplyBtn = document.getElementById('langSuggestionApplyBtn');
 
 // Web Speech API is niet overal beschikbaar (o.a. niet standaard in Firefox, en
 // niet in Safari zodra deze site als PWA op iOS is geïnstalleerd). Als het niet
 // beschikbaar is, verbergen we de spraak-optie in plaats van een kapotte knop te tonen.
 const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
 const speechSupported = !!SpeechRecognitionAPI;
+const speechSynthesisSupported = 'speechSynthesis' in window && typeof SpeechSynthesisUtterance !== 'undefined';
 
 let recognizer = null;
 let session = null; // { cards, direction, mode, index, results: [bool] }
+let suggestedLangs = null; // { a: {code,label}|null, b: {code,label}|null } — nog niet toegepast
+
+function needsLangField(modeValue){
+  return (modeValue === 'speak' && speechSupported) || (modeValue === 'listen' && speechSynthesisSupported);
+}
+
+// De taal per kant staat vast per kolom (niet per sessie) — kolom A en kolom B
+// kunnen twee verschillende talen zijn, en welke kant "prompt" of "antwoord"
+// is hangt alleen af van de gekozen richting.
+function promptLang(){
+  return session.direction === 'a2b' ? colALangSelect.value : colBLangSelect.value;
+}
+function answerLang(){
+  return session.direction === 'a2b' ? colBLangSelect.value : colALangSelect.value;
+}
+
+// Analyseert de VOLLEDIGE kolom (niet alleen de huidige sessie) — hoe meer
+// woorden, hoe meer kans op een duidelijk signaal. Wordt alleen als voorstel
+// getoond, nooit automatisch toegepast (zie langSuggestionApplyBtn).
+function updateLanguageSuggestion(){
+  suggestedLangs = null;
+  langSuggestion.style.display = 'none';
+  const allPairs = getPairs();
+  if (!allPairs.length) return;
+  const detectedA = detectLanguage(allPairs.map(p => p.a));
+  const detectedB = detectLanguage(allPairs.map(p => p.b));
+  const diffA = detectedA && detectedA.code !== colALangSelect.value;
+  const diffB = detectedB && detectedB.code !== colBLangSelect.value;
+  if (!diffA && !diffB) return;
+  suggestedLangs = { a: diffA ? detectedA : null, b: diffB ? detectedB : null };
+  const parts = [];
+  if (suggestedLangs.a) parts.push(`kolom A: ${suggestedLangs.a.label}`);
+  if (suggestedLangs.b) parts.push(`kolom B: ${suggestedLangs.b.label}`);
+  langSuggestionText.textContent = `Dit lijkt te kloppen — ${parts.join(', ')}.`;
+  langSuggestion.style.display = 'flex';
+}
 
 function shuffle(arr){
   const a = arr.slice();
@@ -55,7 +99,8 @@ function openPractice(){
   if (parseInt(practiceSubsetCount.value, 10) > allPairs.length) practiceSubsetCount.value = allPairs.length;
   practiceSetupError.classList.remove('show');
   const checkedMode = document.querySelector('input[name="practiceMode"]:checked');
-  speechLangField.style.display = (checkedMode && checkedMode.value === 'speak' && speechSupported) ? 'block' : 'none';
+  speechLangField.style.display = (checkedMode && needsLangField(checkedMode.value)) ? 'block' : 'none';
+  updateLanguageSuggestion();
   practiceSetup.style.display = 'block';
   practiceSession.style.display = 'none';
   practiceResults.style.display = 'none';
@@ -64,7 +109,20 @@ function openPractice(){
 
 function closePractice(){
   stopListening();
+  stopSpeaking();
   practiceOverlay.style.display = 'none';
+}
+
+function speakText(text, lang){
+  if (!speechSynthesisSupported || !text) return;
+  stopSpeaking();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = lang || 'nl-NL';
+  window.speechSynthesis.speak(utterance);
+}
+
+function stopSpeaking(){
+  if (speechSynthesisSupported) window.speechSynthesis.cancel();
 }
 
 function currentPair(){
@@ -76,14 +134,16 @@ function currentPair(){
 
 function showCard(){
   stopListening();
+  stopSpeaking();
   const { prompt } = currentPair();
   practiceTerm.textContent = prompt;
   practiceProgressText.textContent = `${session.index + 1} / ${session.cards.length}`;
   practiceProgressFill.style.width = `${(session.index / session.cards.length) * 100}%`;
   practiceAnswerArea.style.display = 'none';
-  const instructions = { type: 'Typ het antwoord', speak: 'Spreek het antwoord uit', selfreport: 'Weet jij dit nog?' };
+  const instructions = { type: 'Typ het antwoord', speak: 'Spreek het antwoord uit', selfreport: 'Weet jij dit nog?', listen: 'Luister naar de uitspraak' };
   practiceInstruction.textContent = instructions[session.mode] || '';
   buildInputArea();
+  if (session.mode === 'listen') speakText(prompt, promptLang());
 }
 
 function buildInputArea(){
@@ -125,6 +185,19 @@ function buildInputArea(){
     switchLink.textContent = 'Kan nu niet spreken — typ het antwoord';
     switchLink.addEventListener('click', () => { session.mode = 'type'; buildInputArea(); });
     practiceInputArea.appendChild(switchLink);
+  } else if (session.mode === 'listen'){
+    const replayBtn = document.createElement('button');
+    replayBtn.type = 'button';
+    replayBtn.className = 'practice-mic-btn';
+    replayBtn.textContent = '🔊 Opnieuw afspelen';
+    replayBtn.addEventListener('click', () => speakText(currentPair().prompt, promptLang()));
+    practiceInputArea.appendChild(replayBtn);
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-primary btn-block';
+    btn.style.marginTop = '10px';
+    btn.textContent = 'Toon antwoord';
+    btn.addEventListener('click', revealAnswer);
+    practiceInputArea.appendChild(btn);
   } else {
     const btn = document.createElement('button');
     btn.className = 'btn btn-primary btn-block';
@@ -178,7 +251,7 @@ function toggleListening(btn, heardEl){
   if (!speechSupported) return;
   if (recognizer){ stopListening(); return; }
   recognizer = new SpeechRecognitionAPI();
-  recognizer.lang = speechLangSelect.value || 'nl-NL';
+  recognizer.lang = answerLang() || 'nl-NL';
   recognizer.interimResults = false;
   recognizer.maxAlternatives = 1;
   btn.classList.add('listening');
@@ -240,6 +313,7 @@ function answerCard(correct){
 }
 
 function finishSession(){
+  stopSpeaking();
   practiceSession.style.display = 'none';
   practiceResults.style.display = 'block';
   const correct = session.results.filter(Boolean).length;
@@ -278,10 +352,23 @@ export function initPractice(){
     speakChoice.querySelector('input').disabled = true;
     speechUnsupportedNote.style.display = 'block';
   }
+  if (!speechSynthesisSupported){
+    listenChoice.classList.add('disabled');
+    listenChoice.querySelector('input').disabled = true;
+    ttsUnsupportedNote.style.display = 'block';
+  }
   document.querySelectorAll('input[name="practiceMode"]').forEach(r => {
     r.addEventListener('change', () => {
-      if (r.checked) speechLangField.style.display = (r.value === 'speak' && speechSupported) ? 'block' : 'none';
+      if (r.checked) speechLangField.style.display = needsLangField(r.value) ? 'block' : 'none';
+      updateLanguageSuggestion();
     });
+  });
+  [colALangSelect, colBLangSelect].forEach(el => el.addEventListener('change', updateLanguageSuggestion));
+  langSuggestionApplyBtn.addEventListener('click', () => {
+    if (!suggestedLangs) return;
+    if (suggestedLangs.a) colALangSelect.value = suggestedLangs.a.code;
+    if (suggestedLangs.b) colBLangSelect.value = suggestedLangs.b.code;
+    updateLanguageSuggestion();
   });
 
   practiceBtn.addEventListener('click', openPractice);

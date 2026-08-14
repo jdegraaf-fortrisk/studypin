@@ -52,9 +52,6 @@
     grid-template-columns: 360px 1fr;
     height:100vh;
   }
-  @media (max-width: 860px){
-    .app{grid-template-columns:1fr;}
-  }
 
   /* ---------- Sidebar ---------- */
   .sidebar{
@@ -451,6 +448,8 @@
   }
   @media (max-width:600px){
     .practice-box{ max-height:100vh; height:100%; border-radius:0; padding:20px; }
+    .modal-box{ padding:20px; max-height:100vh; height:100%; border-radius:0; }
+    .modal-overlay{ padding:0; }
   }
   .practice-panel h2{ font-size:20px; margin-bottom:18px; color:var(--ink); }
 
@@ -478,6 +477,33 @@
     background:var(--tint); color:var(--ink);
     font-family:'Inter',sans-serif; font-size:13px; margin:0 4px;
   }
+
+  .lang-suggestion{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-top:8px;
+    padding:8px 10px;
+    background:var(--terracotta-soft);
+    border:1px solid var(--terracotta);
+    border-radius:10px;
+    font-size:12px;
+    color:var(--ink-soft);
+  }
+  .lang-suggestion-btn{
+    flex-shrink:0;
+    border:none;
+    border-radius:999px;
+    padding:5px 12px;
+    font-family:'Baloo 2',sans-serif;
+    font-weight:600;
+    font-size:12px;
+    background:var(--terracotta);
+    color:var(--white);
+    cursor:pointer;
+  }
+  .lang-suggestion-btn:hover{ filter:brightness(1.12); }
 
   .practice-progress{ margin-bottom:20px; }
   .practice-progress span{
@@ -679,4 +705,45 @@
     .sheet-wrap:last-child{ page-break-after:auto; }
     .sheet{box-shadow:none; width:210mm; height:297mm;}
     body.landscape .sheet{width:297mm; height:210mm;}
+  }
+
+  /* ---------- Mobile/tablet ----------
+     Deze staat bewust helemaal onderaan het bestand: bij gelijke specificiteit
+     wint bij een cascade-conflict de regel die LATER in het bestand staat, ook
+     als de andere regel niet in een @media-blok zit. Stond dit blok eerder in
+     het bestand dan de losse .sidebar{}/main{}-regels verderop, dan wonnen die
+     laatste alsnog op mobiel/tablet — precies wat hier eerder misging (o.a.
+     #adSlot dat daardoor niet echt aan de viewport bleef plakken).
+
+     Onder 860px (tablet-portret en telefoon) laten we de vaste 100vh-layout met
+     interne scroll-panelen los: sidebar en main worden onder elkaar gezet en de
+     hele pagina scrolt normaal, met overflow:visible op BEIDE assen op elk
+     niveau (html/body/.sidebar/main) — zodra ergens in die keten een niet-
+     'visible' waarde staat (ook maar op één as), wordt dat element alsnog een
+     scrollcontainer waar #adSlot (position:sticky) aan vastplakt in plaats van
+     aan de echte viewport. Horizontale overflow wordt voorkomen op
+     componentniveau (min-width:0 op de flex-items), niet via overflow-x:hidden
+     hier. */
+  @media (max-width: 860px){
+    html, body{ height:auto; overflow:visible; }
+    .app{ grid-template-columns:1fr; height:auto; }
+    .sidebar{
+      overflow:visible;
+      max-height:none;
+      border-right:none;
+      border-bottom:1px solid var(--line);
+      padding:14px 16px 16px;
+    }
+    main{ overflow:visible; height:auto; padding:20px 16px 28px; }
+
+    /* Grotere raakvlakken voor vingerbediening. */
+    .btn{ padding:13px 16px; }
+    .toggle-row input[type=checkbox]{ width:19px; height:19px; }
+    .mode-choice{ padding:14px; }
+    select, .practice-type-input{ padding:11px 10px; }
+  }
+  /* Op smalle telefoons naast elkaar geplaatste dropdowns/sliders geven te
+     weinig ruimte per veld (afgekapte optietekst) — zet die dan onder elkaar. */
+  @media (max-width: 420px){
+    .field-row{ flex-direction:column; }
   }
