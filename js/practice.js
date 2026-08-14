@@ -134,6 +134,46 @@ function buildInputArea(){
   }
 }
 
+function normalizeSpoken(s){
+  return s
+    .toLowerCase()
+    .normalize('NFD').replace(/\p{M}/gu, '')
+    .replace(/[^\p{L}\p{N}\s]/gu, '')
+    .trim()
+    .replace(/\s+/g, ' ');
+}
+
+function levenshtein(a, b){
+  const m = a.length, n = b.length;
+  if (m === 0) return n;
+  if (n === 0) return m;
+  const dp = [];
+  for (let i = 0; i <= m; i++) dp.push([i, ...Array(n).fill(0)]);
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+  for (let i = 1; i <= m; i++){
+    for (let j = 1; j <= n; j++){
+      dp[i][j] = a[i - 1] === b[j - 1]
+        ? dp[i - 1][j - 1]
+        : 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+    }
+  }
+  return dp[m][n];
+}
+
+// Spraakherkenning is nooit perfect (accent, achtergrondgeluid, transcriptie-eigenaardigheden),
+// dus vergelijk niet op exacte gelijkheid maar sta een kleine afwijking toe — behalve bij korte
+// antwoorden: bij een woord als "brood" (5 letters) is 1 letter verschil vaak een ander woord
+// ("rood"), geen tikfout, dus daar is alleen een exacte match goed genoeg.
+function isCloseMatch(heard, answer){
+  const a = normalizeSpoken(heard);
+  const b = normalizeSpoken(answer);
+  if (!a || !b) return false;
+  if (a === b) return true;
+  if (b.length <= 5) return false;
+  const threshold = Math.floor(b.length * 0.15);
+  return threshold > 0 && levenshtein(a, b) <= threshold;
+}
+
 function toggleListening(btn, heardEl){
   if (!speechSupported) return;
   if (recognizer){ stopListening(); return; }
@@ -146,7 +186,17 @@ function toggleListening(btn, heardEl){
   heardEl.textContent = '';
   recognizer.onresult = (e) => {
     const text = e.results[0][0].transcript;
-    heardEl.textContent = `Jij zei: "${text}"`;
+    const { answer } = currentPair();
+    const correct = isCloseMatch(text, answer);
+    heardEl.innerHTML = '';
+    const heardLine = document.createElement('div');
+    heardLine.textContent = `Jij zei: "${text}"`;
+    heardEl.appendChild(heardLine);
+    const verdict = document.createElement('span');
+    verdict.className = 'speech-verdict ' + (correct ? 'correct' : 'incorrect');
+    verdict.textContent = correct ? '✅ Klinkt goed!' : '❌ Dat lijkt niet te kloppen';
+    heardEl.appendChild(verdict);
+    revealAnswer();
   };
   recognizer.onerror = (e) => {
     const messages = {
@@ -194,7 +244,16 @@ function finishSession(){
   practiceResults.style.display = 'block';
   const correct = session.results.filter(Boolean).length;
   const total = session.cards.length;
-  practiceScoreText.textContent = `${correct} / ${total} goed`;
+  const ratio = total ? correct / total : 0;
+  const praise = ratio === 1 ? 'Perfect!' : ratio >= 0.7 ? 'Goed gedaan!' : ratio >= 0.4 ? 'Blijf oefenen!' : 'Volgende keer beter!';
+  practiceScoreText.innerHTML = '';
+  const scoreLine = document.createElement('div');
+  scoreLine.textContent = `${correct} / ${total} goed`;
+  practiceScoreText.appendChild(scoreLine);
+  const praiseLine = document.createElement('span');
+  praiseLine.className = 'script-accent';
+  praiseLine.textContent = praise;
+  practiceScoreText.appendChild(praiseLine);
   practiceMissedList.innerHTML = '';
   const missed = session.cards.filter((c, i) => !session.results[i]);
   if (missed.length === 0){
