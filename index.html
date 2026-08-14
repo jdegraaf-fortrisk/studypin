@@ -69,7 +69,7 @@
       </div>
       <div id="columnField" class="field" style="display:none; margin-top:10px;">
         <label class="title">Kolommen</label>
-        <div style="display:flex; gap:8px;">
+        <div class="field-row" style="display:flex; gap:8px;">
           <div style="flex:1;">
             <label class="title" for="colFront" style="font-weight:400; font-size:12px; color:var(--muted);">Voorkant</label>
             <select id="colFront"></select>
@@ -109,7 +109,7 @@
         </label>
       </div>
 
-      <div style="display:flex; gap:8px; margin-top:10px;">
+      <div class="field-row" style="display:flex; gap:8px; margin-top:10px;">
         <div class="field" style="flex:1;">
           <label class="title" for="orientation">Oriëntatie</label>
           <select id="orientation">
@@ -130,7 +130,7 @@
         </div>
       </div>
 
-      <div style="display:flex; gap:8px; margin-top:10px;">
+      <div class="field-row" style="display:flex; gap:8px; margin-top:10px;">
         <div class="field" style="flex:1;">
           <label class="title" for="fontSliderFront" style="font-weight:400; font-size:12px; color:var(--muted);">Lettergrootte voorkant</label>
           <div class="slider-row">
@@ -238,28 +238,59 @@
         <div class="mode-choice-group" id="modeChoiceGroup">
           <label class="mode-choice"><input type="radio" name="practiceMode" value="type" checked><span>⌨️ Typen</span></label>
           <label class="mode-choice" id="speakChoice"><input type="radio" name="practiceMode" value="speak"><span>🎤 Uitspreken</span></label>
+          <label class="mode-choice" id="listenChoice"><input type="radio" name="practiceMode" value="listen"><span>🔊 Luisteren</span></label>
           <label class="mode-choice"><input type="radio" name="practiceMode" value="selfreport"><span>👆 Alleen aangeven</span></label>
         </div>
         <div id="speechUnsupportedNote" class="settings-note" style="display:none; color:var(--error); margin-top:8px;">Spraakherkenning wordt niet ondersteund in deze browser. Gebruik Chrome, Edge of Safari, of kies een andere modus.</div>
+        <div id="ttsUnsupportedNote" class="settings-note" style="display:none; color:var(--error); margin-top:8px;">Voorlezen wordt niet ondersteund in deze browser. Kies een andere modus.</div>
         <div id="speechLangField" class="field" style="display:none; margin-top:10px;">
-          <label class="title" for="speechLangSelect" style="font-weight:400; font-size:12px; color:var(--muted);">Taal om te spreken</label>
-          <select id="speechLangSelect">
-            <option value="nl-NL">Nederlands</option>
-            <option value="en-US">Engels (VS)</option>
-            <option value="en-GB">Engels (UK)</option>
-            <option value="fr-FR">Frans</option>
-            <option value="de-DE">Duits</option>
-            <option value="es-ES">Spaans</option>
-            <option value="it-IT">Italiaans</option>
-            <option value="pt-PT">Portugees</option>
-            <option value="pl-PL">Pools</option>
-            <option value="tr-TR">Turks</option>
-            <option value="zh-CN">Chinees (Mandarijn)</option>
-            <option value="ja-JP">Japans</option>
-            <option value="ko-KR">Koreaans</option>
-            <option value="ru-RU">Russisch</option>
-            <option value="ar-SA">Arabisch</option>
-          </select>
+          <div style="display:flex; gap:8px;">
+            <div class="field" style="flex:1;">
+              <label class="title" for="colALangSelect" style="font-weight:400; font-size:12px; color:var(--muted);">Taal kolom A</label>
+              <select id="colALangSelect">
+                <option value="nl-NL">Nederlands</option>
+                <option value="en-US">Engels (VS)</option>
+                <option value="en-GB">Engels (UK)</option>
+                <option value="fr-FR">Frans</option>
+                <option value="de-DE">Duits</option>
+                <option value="es-ES">Spaans</option>
+                <option value="it-IT">Italiaans</option>
+                <option value="pt-PT">Portugees</option>
+                <option value="pl-PL">Pools</option>
+                <option value="tr-TR">Turks</option>
+                <option value="zh-CN">Chinees (Mandarijn)</option>
+                <option value="ja-JP">Japans</option>
+                <option value="ko-KR">Koreaans</option>
+                <option value="ru-RU">Russisch</option>
+                <option value="ar-SA">Arabisch</option>
+              </select>
+            </div>
+            <div class="field" style="flex:1;">
+              <label class="title" for="colBLangSelect" style="font-weight:400; font-size:12px; color:var(--muted);">Taal kolom B</label>
+              <select id="colBLangSelect">
+                <option value="nl-NL" selected>Nederlands</option>
+                <option value="en-US">Engels (VS)</option>
+                <option value="en-GB">Engels (UK)</option>
+                <option value="fr-FR">Frans</option>
+                <option value="de-DE">Duits</option>
+                <option value="es-ES">Spaans</option>
+                <option value="it-IT">Italiaans</option>
+                <option value="pt-PT">Portugees</option>
+                <option value="pl-PL">Pools</option>
+                <option value="tr-TR">Turks</option>
+                <option value="zh-CN">Chinees (Mandarijn)</option>
+                <option value="ja-JP">Japans</option>
+                <option value="ko-KR">Koreaans</option>
+                <option value="ru-RU">Russisch</option>
+                <option value="ar-SA">Arabisch</option>
+              </select>
+            </div>
+          </div>
+          <div id="langSuggestion" class="lang-suggestion" style="display:none;">
+            <span id="langSuggestionText"></span>
+            <button id="langSuggestionApplyBtn" type="button" class="lang-suggestion-btn">Gebruik dit</button>
+          </div>
+          <div class="settings-note" style="margin-top:6px;">Deze taalkeuze wordt onthouden en gebruikt voor zowel uitspreken als luisteren.</div>
         </div>
       </div>
       <div class="field" style="margin-top:16px;">

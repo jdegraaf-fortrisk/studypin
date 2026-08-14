@@ -111,6 +111,9 @@ export function handleFile(file){
       populateColumns();
 
       generateBtn.disabled = false;
+
+      const details = dropzone.closest('details');
+      if (details) details.open = false;
     } catch(err){
       showError('Kon dit bestand niet lezen. Is het een geldig Excel-bestand?');
     }
@@ -128,6 +131,8 @@ export function resetUpload(){
   columnField.style.display = 'none';
   generateBtn.disabled = true;
   clearError();
+  const details = dropzone.closest('details');
+  if (details) details.open = true;
 }
 
 export function parseCurrentPairs(){
