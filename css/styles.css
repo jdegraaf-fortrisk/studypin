@@ -86,7 +86,9 @@
     text-transform:uppercase;
     color:var(--terracotta);
   }
-  .brand h1{
+  .brand .brand-title{
+    margin:0;
+    font-family:'Baloo 2',sans-serif;
     font-size:20px;
     font-weight:800;
     background:linear-gradient(90deg, var(--terracotta), var(--accent));
@@ -94,7 +96,7 @@
     background-clip:text;
     color:transparent;
   }
-  .brand p{display:none;}
+  .brand .tagline{display:none;}
 
   .section-label{
     font-family:'Baloo 2',sans-serif;
@@ -319,6 +321,51 @@
     overflow-y:auto;
     overflow-x:hidden;
   }
+  .intro{
+    margin-bottom:28px;
+    padding-bottom:24px;
+    border-bottom:1px solid var(--line);
+  }
+  .intro h1{
+    font-size:26px;
+    margin-bottom:10px;
+    background:linear-gradient(90deg, var(--terracotta), var(--accent));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  .intro > p{
+    font-size:14px;
+    color:var(--ink-soft);
+    line-height:1.6;
+    margin-bottom:14px;
+  }
+  .intro-features{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
+    gap:8px 24px;
+    padding:0;
+    margin:0;
+    list-style:none;
+  }
+  .intro-features li{
+    position:relative;
+    padding-left:20px;
+    font-size:13px;
+    color:var(--ink-soft);
+    line-height:1.5;
+  }
+  .intro-features li::before{
+    content:'✓';
+    position:absolute;
+    left:0;
+    color:var(--terracotta);
+    font-weight:700;
+  }
+  @media (max-width:640px){
+    .intro-features{ grid-template-columns:1fr; }
+  }
+
   .main-header{
     display:flex;
     justify-content:space-between;
