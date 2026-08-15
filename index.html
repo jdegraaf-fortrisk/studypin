@@ -29,8 +29,17 @@
   invullen). De Google-domeinen die AdSense nodig heeft (script/frame/connect/img)
   staan hieronder al toegevoegd. Werk de nginx-CSP-header bij naar dezelfde,
   aangescherpte bronnen zodra je live gaat — zie LET OP 1.
+
+  LET OP 3: img-src gebruikt bewust de specifieke subdomeinen die ook al bij
+  script-src/connect-src/frame-src staan, in plaats van *.googlesyndication.com /
+  *.doubleclick.net / *.google.com — die wildcards waren breder dan AdSense
+  nodig heeft, en sommige google.com-subdomeinen zijn in het verleden gebruikt
+  als CSP-omzeiling (open redirects/JSONP) om data te laten weglekken via een
+  toegestaan domein. Als er, zodra de echte publisher-ID actief is, ontbrekende
+  advertentie-afbeeldingen/iconen zijn, is dit de eerste plek om te verruimen
+  (bv. met https://*.gstatic.com), niet meteen terug naar de brede wildcards.
 -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://*.googlesyndication.com https://*.doubleclick.net https://*.google.com; connect-src 'self' https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net; frame-src https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://www.google.com; object-src 'none'; base-uri 'none';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://www.google.com; connect-src 'self' https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net; frame-src https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://www.google.com; object-src 'none'; base-uri 'none';">
 <title>StudyPin | Flashcards maken van je woordenlijst</title>
 <meta name="description" content="StudyPin: upload je Excel-woordenlijst en maak direct flashcards. Oefen met typen, inspreken en uitspraak in meerdere talen, of print dubbelzijdige kaarten.">
 <meta name="robots" content="index, follow">

@@ -339,7 +339,13 @@ function finishSession(){
       const { prompt, answer } = session.direction === 'a2b' ? { prompt: c.a, answer: c.b } : { prompt: c.b, answer: c.a };
       const row = document.createElement('div');
       row.className = 'practice-missed-item';
-      row.innerHTML = `<span>${prompt}</span><span style="color:var(--muted);">${answer}</span>`;
+      const promptEl = document.createElement('span');
+      promptEl.textContent = prompt;
+      const answerEl = document.createElement('span');
+      answerEl.style.color = 'var(--muted)';
+      answerEl.textContent = answer;
+      row.appendChild(promptEl);
+      row.appendChild(answerEl);
       practiceMissedList.appendChild(row);
     });
   }
