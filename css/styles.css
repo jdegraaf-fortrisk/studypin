@@ -92,6 +92,10 @@
     font-size:20px;
     font-weight:800;
     color:var(--terracotta);
+    background:linear-gradient(90deg, var(--terracotta), var(--accent));
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
   }
   .brand .tagline{display:none;}
 
@@ -327,6 +331,10 @@
     font-size:26px;
     margin-bottom:10px;
     color:var(--terracotta);
+    background:linear-gradient(90deg, var(--terracotta), var(--accent));
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
   }
   .intro > p{
     font-size:14px;
