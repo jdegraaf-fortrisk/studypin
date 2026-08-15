@@ -91,10 +91,15 @@
     font-family:'Baloo 2',sans-serif;
     font-size:20px;
     font-weight:800;
-    background:linear-gradient(90deg, var(--terracotta), var(--accent));
-    -webkit-background-clip:text;
-    background-clip:text;
-    color:transparent;
+    color:var(--terracotta);
+  }
+  @supports (background-clip: text) or (-webkit-background-clip: text){
+    .brand .brand-title{
+      background:linear-gradient(90deg, var(--terracotta), var(--accent));
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+    }
   }
   .brand .tagline{display:none;}
 
@@ -329,10 +334,15 @@
   .intro h1{
     font-size:26px;
     margin-bottom:10px;
-    background:linear-gradient(90deg, var(--terracotta), var(--accent));
-    -webkit-background-clip:text;
-    background-clip:text;
-    color:transparent;
+    color:var(--terracotta);
+  }
+  @supports (background-clip: text) or (-webkit-background-clip: text){
+    .intro h1{
+      background:linear-gradient(90deg, var(--terracotta), var(--accent));
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+    }
   }
   .intro > p{
     font-size:14px;
