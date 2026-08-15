@@ -23,6 +23,7 @@ const colBack = document.getElementById('colBack');
 const errorBanner = document.getElementById('errorBanner');
 const skipHeader = document.getElementById('skipHeader');
 const generateBtn = document.getElementById('generateBtn');
+const printTip = document.getElementById('printTip');
 
 let workbook = null;
 
@@ -112,6 +113,7 @@ export function handleFile(file){
       populateColumns();
 
       generateBtn.disabled = false;
+      printTip.style.display = 'block';
 
       const details = dropzone.closest('details');
       if (details) details.open = false;
@@ -131,6 +133,7 @@ export function resetUpload(){
   sheetField.style.display = 'none';
   columnField.style.display = 'none';
   generateBtn.disabled = true;
+  printTip.style.display = 'none';
   clearError();
   const details = dropzone.closest('details');
   if (details) details.open = true;
