@@ -93,14 +93,6 @@
     font-weight:800;
     color:var(--terracotta);
   }
-  @supports (background-clip: text) or (-webkit-background-clip: text){
-    .brand .brand-title{
-      background:linear-gradient(90deg, var(--terracotta), var(--accent));
-      -webkit-background-clip:text;
-      background-clip:text;
-      color:transparent;
-    }
-  }
   .brand .tagline{display:none;}
 
   .section-label{
@@ -336,14 +328,6 @@
     margin-bottom:10px;
     color:var(--terracotta);
   }
-  @supports (background-clip: text) or (-webkit-background-clip: text){
-    .intro h1{
-      background:linear-gradient(90deg, var(--terracotta), var(--accent));
-      -webkit-background-clip:text;
-      background-clip:text;
-      color:transparent;
-    }
-  }
   .intro > p{
     font-size:14px;
     color:var(--ink-soft);
@@ -359,6 +343,8 @@
     list-style:none;
   }
   .intro-features li{
+    display:block;
+    list-style-type:none;
     position:relative;
     padding-left:20px;
     font-size:13px;
